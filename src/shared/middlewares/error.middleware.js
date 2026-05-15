@@ -42,3 +42,4 @@ const globalErrorHandler = (error, req, res, next)=>{
   })
 
 };
+export default globalErrorHandler;
