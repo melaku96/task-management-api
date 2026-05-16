@@ -9,9 +9,9 @@ export const registerService = async (payload) => {
   const isExist = await userModel.findOne({ email: payload.email });
   if (isExist) {
     if (isExist.isVerified) {
-      throw new ApiError(409, "Email already verified. Please login.");
+      throw new ApiError("Email already verified. Please login.", 409);
     }else if (!isExist.isVerified && isExist.verificationTokenExpire > Date.now()) {
-      throw new ApiError(401, `Email already registred. Check your email and verify it with in ${Math.ceil((user.verificationTokenExpire - Date.now()) / 1000)} minutes `);
+      throw new ApiError(`Email already registred. Check your email and verify it with in ${Math.ceil((isExist.verificationTokenExpire - Date.now()) / 60000)} minutes `, 401);
     }else {
       await isExist.deleteOne();
     };
@@ -22,7 +22,7 @@ export const registerService = async (payload) => {
   const user = await userModel.create({
     ...payload,
     password: hashedPassword,
-    verificationToken: hashedVerificationToken,
+    verificationToken: cryptoHash(verificationToken),
     verificationTokenExpire: Date.now()+60*60*1000,
   });
   const verificationLink = `http://localhost:3000/api/auth/verify-email?token=${verificationToken}`;
