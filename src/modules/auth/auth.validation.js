@@ -5,3 +5,7 @@ export const registerSchema = z.object({
   email: z.string().email().trim(),
   password: z.string().min(6).trim()
 });
+
+export const resendSchema = z.object({
+  email: z.string().email().trim(),
+});
