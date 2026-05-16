@@ -57,7 +57,7 @@ export const verifyEmailService = async (payload) => {
     verificationTokenExpire: { $gt: Date.now() },
   });
   if (!user) {
-    throw new ApiError("Verification time is expired. Please register again", 403);
+    throw new ApiError("Verification time is expired or it is already verified", 403);
   };
   user.isVerified = true;
   user.verificationToken = undefined;
