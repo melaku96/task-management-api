@@ -25,7 +25,7 @@ export const registerService = async (payload) => {
     verificationToken: cryptoHash(verificationToken),
     verificationTokenExpire: Date.now() + 60 * 60 * 1000,
   });
-  const verificationLink = `http://localhost:3000/api/auth/verify-email?token=${verificationToken}`;
+  const verificationLink = `http://localhost:3000/api/v1/auth/verify-email?token=${verificationToken}`;
 
   const htmTemplete = verifyEmailTemplate(verificationLink);
   await sendEmail(payload.email, "Verify Your Email", htmTemplete);
@@ -43,7 +43,7 @@ export const resendVerificationService = async (payload) => {
   user.verificationTokenExpire = Date.now() + 60 * 60 * 1000;
   await user.save();
 
-  const verificationLink = `http://localhost:3000/api/auth/verify-email?token=${verificationToken}`;
+  const verificationLink = `http://localhost:3000/api/v1/auth/verify-email?token=${verificationToken}`;
 
   const htmTemplete = verifyEmailTemplate(verificationLink);
   await sendEmail(payload.email, "Verify Your Email", htmTemplete);
