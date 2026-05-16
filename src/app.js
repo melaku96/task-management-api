@@ -5,6 +5,7 @@ import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import env from "./config/env.js";
 import globalErrorHandler from "./shared/middlewares/error.middleware.js";
+import routes from "./routes/index.js";
 
 const app = express();
 //middlewares
@@ -14,7 +15,7 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(cookieParser());
 //routes
-
+app.use("/api/v1", routes);
 //404 handler
 app.use((req, res)=>{
   res.status(404).json("Route not found")

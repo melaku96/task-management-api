@@ -4,10 +4,10 @@ import zodErrorHandler from "../errors/zodErrorHandler.js";
 import env from "../../config/env.js";
 
 const globalErrorHandler = (error, req, res, next)=>{
-  const statusCode = error.statusCode || 500;
-  const status = error.status || "error";
-  const message = error.message || "Something went wrong";
-
+  let statusCode = error.statusCode || 500;
+  let status = error.status || "error";
+  let message = error.message || "Something went wrong";
+  let errors = [];
   //zod validation
   if(error.name === "ZodError"){
     const simplifiedError = zodErrorHandler(error);
@@ -38,7 +38,6 @@ const globalErrorHandler = (error, req, res, next)=>{
     status,
     message,
     errors,
-    stack: env.nodeEnv === "development"? error.stack : undefined,
   })
 
 };
