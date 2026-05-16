@@ -23,9 +23,13 @@ const userSchema = mongoose.Schema({
     enum:["admin", "manager", "member"],
     default: "member"
   },
-  isActive:{
+  isVerified:{
     type:Boolean,
     default: false,
+  },
+  isActive:{
+    type:Boolean,
+    default: true,
   },
   avatar:{
     type: String,
@@ -34,8 +38,8 @@ const userSchema = mongoose.Schema({
   refreshToken: String,
   resetPasswordToken: String,
   resetPasswordTokenExpire: Date,
-  emailVerificationToken: String,
-  emailVerificationTokenExpire: Date,
+  verificationToken: String,
+  verificationTokenExpire: Date,
 }, {timestamps: true});
 
 export default mongoose.model("Users", userSchema);
