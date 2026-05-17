@@ -1,5 +1,6 @@
+import { success } from "zod";
 import { catchAsync } from "../../shared/utils/catchAsync.js";
-import { registerService, resendVerificationService, verifyEmailService } from "./auth.service.js";
+import { forgotPasswordService, loginService, logoutService, refreshTokenService, registerService, resendVerificationService, resetPasswordService, verifyEmailService } from "./auth.service.js";
 //Register
 export const registerController = catchAsync(async(req, res)=>{
   const {user} = await registerService(req.body);
@@ -25,4 +26,85 @@ export const emailVerificationController = catchAsync(async(req, res)=>{
     success: true,
     message: "Email Verified Successfully.",
   });
+});
+// Login
+export const loginController = catchAsync(async(req, res)=>{
+  const {accessToken, refreshToken, user} = await loginService(req.body);
+  res.cookie("accessToken", accessToken,{
+    httpOnly: true,
+    secure: false, //true for production
+    sameSite:"strict",
+    maxAge: 30*60*1000,
+  });
+  res.cookie("refreshToken", refreshToken,{
+    httpOnly: true,
+    secure: false, //true for production
+    sameSite:"strict",
+    maxAge: 7*24*60*60*1000,
+  });
+  res.status(200).json({
+    success: true,
+    message: "Login succeffully",
+    user
+  });
+});
+//Refresh
+export const refreshTokenController = catchAsync(async(req, res)=>{
+  const token = req.cookies.refreshToken;
+  const {newAccessToken, newRefreshToken} = await refreshTokenService(token);
+   res.cookie("accessToken", newAccessToken,{
+    httpOnly: true,
+    secure: false, //true for production
+    sameSite:"strict",
+    maxAge: 30*60*1000,
+  });
+  res.cookie("refreshToken", newRefreshToken,{
+    httpOnly: true,
+    secure: false, //true for production
+    sameSite:"strict",
+    maxAge: 7*24*60*60*1000,
+  });
+  res.status(200).json({
+    success: true,
+    message: "Token refrshed succeffully",
+  });
+});
+//Forgot password
+export const forgotPasswordController = catchAsync(async(req, res)=>{
+  const {resetURL} = await forgotPasswordService(req.body.email);
+  res.status(200).json({
+    success:true,
+    message:"Please enter the new password",
+    resetURL
+  });
+});
+//Reset password
+export const resetPasswordController = catchAsync(async(req, res)=>{
+  const {password} = req.body;
+  const {token} = req.query;
+  await resetPasswordService(password, token);
+  res.status(201).json({
+    success:true,
+    message:"Your passwored is reseted successfully",
+  });
+});
+//Logout
+export const logoutController = catchAsync(async(req, res)=>{
+  await logoutService(req.cookies.refreshToken);
+  res.clearCookie("accessToken",{
+    httpOnly: true,
+    secure: false, //true for production
+    sameSite:"strict",
+    maxAge: 30*60*1000,
+  });
+  res.clearCookie("refreshToken",{
+    httpOnly: true,
+    secure: false, //true for production
+    sameSite:"strict",
+    maxAge: 7*24*60*60*1000,
+  });
+  res.status(200).json({
+    success: true,
+    message: "Logout successfully",
+  })
 });
