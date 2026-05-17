@@ -95,15 +95,29 @@ export const loginService = async(payload)=>{
 //Refresh token
 export const refreshTokenService = async(payload)=>{
   if(!payload){
-    throw new ApiError("No tokn found.Please login", 4013)
+    throw new ApiError("No token found.Please login", 403)
   }
   const user = await userModel.findOne({refreshToken: cryptoHash(payload)});
   if(!user){
-    throw new ApiError("Token expired. Please login again");
+    throw new ApiError("Token expired. Please login again", 403);
   }
   const newAccessToken = generateToken(user);
   const newRefreshToken = crypto.randomBytes(32).toString('hex');
   user.refreshToken = cryptoHash(newRefreshToken);
   await user.save();
   return {newAccessToken, newRefreshToken};
-}
+};
+//Forgot
+export const forgotPasswordService = async(payload)=>{
+  const user = await userModel.findOne({email: payload});
+  if(!user){
+    throw new ApiError("User not found. Please register first", 404);
+  };
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  user.resetPasswordToken = cryptoHash(resetToken);
+  user.resetPasswordTokenExpire = Date.now()+60*60*1000;
+  await user.save();
+  const resetURL = `http://localhost:3000/api/v1/auth/reset-password?token${resetPasswordToken}`;
+
+  return {resetURL};
+};
