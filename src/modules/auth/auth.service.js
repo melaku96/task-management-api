@@ -105,5 +105,5 @@ export const refreshTokenService = async(payload)=>{
   const newRefreshToken = crypto.randomBytes(32).toString('hex');
   user.refreshToken = cryptoHash(newRefreshToken);
   await user.save();
-  return {newAccessToken, newRefreshToken, user};
+  return {newAccessToken, newRefreshToken};
 }

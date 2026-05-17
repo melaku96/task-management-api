@@ -51,7 +51,7 @@ export const loginController = catchAsync(async(req, res)=>{
 //Refresh
 export const refreshTokenController = catchAsync(async(req, res)=>{
   const token = req.cookies.refreshToken;
-  const {newAccessToken, newRefreshToken, user} = await refreshTokenService(token);
+  const {newAccessToken, newRefreshToken} = await refreshTokenService(token);
    res.cookie("accessToken", newAccessToken,{
     httpOnly: true,
     secure: false, //true for production
@@ -67,6 +67,5 @@ export const refreshTokenController = catchAsync(async(req, res)=>{
   res.status(200).json({
     success: true,
     message: "Token refrshed succeffully",
-    user
   });
 })
