@@ -1,6 +1,6 @@
 import { success } from "zod";
 import { catchAsync } from "../../shared/utils/catchAsync.js";
-import { loginService, registerService, resendVerificationService, verifyEmailService } from "./auth.service.js";
+import { loginService, refreshTokenService, registerService, resendVerificationService, verifyEmailService } from "./auth.service.js";
 //Register
 export const registerController = catchAsync(async(req, res)=>{
   const {user} = await registerService(req.body);
@@ -48,3 +48,25 @@ export const loginController = catchAsync(async(req, res)=>{
     user
   });
 });
+//Refresh
+export const refreshTokenController = catchAsync(async(req, res)=>{
+  const token = req.cookies.refreshToken;
+  const {newAccessToken, newRefreshToken, user} = await refreshTokenService(token);
+   res.cookie("accessToken", newAccessToken,{
+    httpOnly: true,
+    secure: false, //true for production
+    sameSite:"strict",
+    maxAge: 30*60*1000,
+  });
+  res.cookie("refreshToken", newRefreshToken,{
+    httpOnly: true,
+    secure: false, //true for production
+    sameSite:"strict",
+    maxAge: 7*24*60*60*1000,
+  });
+  res.status(200).json({
+    success: true,
+    message: "Token refrshed succeffully",
+    user
+  });
+})

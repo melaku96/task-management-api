@@ -91,4 +91,19 @@ export const loginService = async(payload)=>{
   user.refreshToken = cryptoHash(refreshToken);
   await user.save();
   return {accessToken, refreshToken, user};
+};
+//Refresh token
+export const refreshTokenService = async(payload)=>{
+  if(!payload){
+    throw new ApiError("No tokn found.Please login", 4013)
+  }
+  const user = await userModel.findOne({refreshToken: cryptoHash(payload)});
+  if(!user){
+    throw new ApiError("Token expired. Please login again");
+  }
+  const newAccessToken = generateToken(user);
+  const newRefreshToken = crypto.randomBytes(32).toString('hex');
+  user.refreshToken = cryptoHash(newRefreshToken);
+  await user.save();
+  return {newAccessToken, newRefreshToken, user};
 }
