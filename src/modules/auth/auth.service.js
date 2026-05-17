@@ -138,4 +138,16 @@ export const resetPasswordService = async(newPassword, resetToken)=>{
   user.resetPasswordToken=undefined;
   user.resetPasswordTokenExpire=undefined;
   await user.save();
-}
+};
+//Logout
+export const logoutService = async(payload)=>{
+  if(!payload){
+    throw new ApiError("No token found", 403);
+  };
+  const user = await userModel.findOne({refreshToken: cryptoHash(payload)});
+  if(!user){
+    throw new ApiError("Invalid or expired token", 403);
+  };
+  user.refreshToken = null;
+  await user.save();
+};

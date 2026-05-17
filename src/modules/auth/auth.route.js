@@ -1,7 +1,7 @@
 import express from "express";
 import validate from "../../shared/middlewares/validate.middleware.js";
 import { forgotSchema, loginSchema, registerSchema, resendSchema, resetSchema } from "./auth.validation.js";
-import { emailVerificationController, forgotPasswordController, loginController, refreshTokenController, registerController, resendVerificationController, resetPasswordController } from "./auth.controller.js";
+import { emailVerificationController, forgotPasswordController, loginController, logoutController, refreshTokenController, registerController, resendVerificationController, resetPasswordController } from "./auth.controller.js";
 
 const router = express.Router();
 //routes
@@ -12,5 +12,6 @@ router.post("/login", validate(loginSchema), loginController);
 router.post("/refresh-token", refreshTokenController);
 router.post("/forgot-password", validate(forgotSchema), forgotPasswordController);
 router.post("/reset-password", validate(resetSchema), resetPasswordController);
+router.post("/logout", logoutController);
 
 export default router;
