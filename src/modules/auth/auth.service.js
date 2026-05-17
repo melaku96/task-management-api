@@ -71,7 +71,7 @@ export const verifyEmailService = async (payload) => {
 };
 //Login
 export const loginService = async(payload)=>{
-  const user = await userModel.findOne({email: payload.email});
+  const user = await userModel.findOne({email: payload.email}).select("+password");
   if(!user){
     throw new ApiError("User not found. Please register.", 404);
   };
