@@ -1,5 +1,6 @@
+import { success } from "zod";
 import { catchAsync } from "../../shared/utils/catchAsync.js";
-import { registerService, resendVerificationService, verifyEmailService } from "./auth.service.js";
+import { loginService, registerService, resendVerificationService, verifyEmailService } from "./auth.service.js";
 //Register
 export const registerController = catchAsync(async(req, res)=>{
   const {user} = await registerService(req.body);
@@ -24,5 +25,26 @@ export const emailVerificationController = catchAsync(async(req, res)=>{
   res.status(201).json({
     success: true,
     message: "Email Verified Successfully.",
+  });
+});
+// Login
+export const loginController = catchAsync(async(req, res)=>{
+  const {accessToken, refreshToken, user} = await loginService(req.body);
+  res.cookie("accessToken", accessToken,{
+    httpOnly: true,
+    secure: false, //true for production
+    sameSite:"strict",
+    maxAge: 30*60*1000,
+  });
+  res.cookie("refreshToken", refreshToken,{
+    httpOnly: true,
+    secure: false, //true for production
+    sameSite:"strict",
+    maxAge: 7*24*60*60*1000,
+  });
+  res.status(200).json({
+    success: true,
+    message: "Login succeffully",
+    user
   });
 });

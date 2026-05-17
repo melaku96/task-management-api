@@ -1,9 +1,13 @@
 import ApiError from "../../shared/errors/ApiError.js";
+import { comparePassword } from "../../shared/utils/comparePassword.js";
 import { verifyEmailTemplate } from "../../shared/utils/emailTemplet.js";
+import { generateToken } from "../../shared/utils/generateToken.js";
 import { bcryptHash, cryptoHash } from "../../shared/utils/hashToken.js";
 import { sendEmail } from "../../shared/utils/sendEmail.js";
 import userModel from "../user/user.model.js"
 import crypto from "crypto"
+
+
 //Register
 export const registerService = async (payload) => {
   const isExist = await userModel.findOne({ email: payload.email });
@@ -64,4 +68,27 @@ export const verifyEmailService = async (payload) => {
   user.verificationTokenExpire = undefined;
 
   await user.save();
+};
+//Login
+export const loginService = async(payload)=>{
+  const user = await userModel.findOne({email: payload.email});
+  if(!user){
+    throw new ApiError("User not found. Please register.", 404);
+  };
+  if(!user.isVerified && user.verificationTokenExpire > Date.now()){
+    throw new ApiError("Verify your email first", 401);
+  };
+  if(!user.isVerified && user.verificationTokenExpire < Date.now()){
+    await user.deleteOne();
+    throw new ApiError("Verification time exprieed. Please Register again", 401);
+  };
+  const isMatch = await comparePassword(payload.password, user.password);
+  if(!isMatch){
+    throw new ApiError("Invalid password", 401);
+  }
+  const accessToken = generateToken(user);
+  const refreshToken = crypto.randomBytes(32).toString('hex');
+  user.refreshToken = cryptoHash(refreshToken);
+  await user.save();
+  return {accessToken, refreshToken, user};
 }
