@@ -117,7 +117,25 @@ export const forgotPasswordService = async(payload)=>{
   user.resetPasswordToken = cryptoHash(resetToken);
   user.resetPasswordTokenExpire = Date.now()+60*60*1000;
   await user.save();
-  const resetURL = `http://localhost:3000/api/v1/auth/reset-password?token${resetPasswordToken}`;
+  const resetURL = `http://localhost:3000/api/v1/auth/reset-password?token=${resetToken}`;
 
   return {resetURL};
 };
+//Reset password
+export const resetPasswordService = async(newPassword, resetToken)=>{
+  if(!resetToken){
+    throw new ApiError("No token found", 403);
+  };
+  const user = await userModel.findOne({
+    resetPasswordToken: cryptoHash(resetToken),
+    resetPasswordTokenExpire:{$gt: Date.now()},
+  });
+  if(!user){
+    throw new ApiError("reset password token expired", 403);
+  };
+  const hashedPassword = await bcryptHash(newPassword);
+  user.password = hashedPassword;
+  user.resetPasswordToken=undefined;
+  user.resetPasswordTokenExpire=undefined;
+  await user.save();
+}
