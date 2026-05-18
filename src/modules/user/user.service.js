@@ -49,3 +49,11 @@ export const changePasswordService = async(id, paylod)=>{
   user.password = hashedNewPassword;
   await user.save();
 };
+//user delete
+export const deleteUserService = async(paylod)=>{
+  const user = await userModel.findOne({_id:paylod});
+  if(!user){
+    throw new ApiError("User not found", 404);
+  };
+  await user.deleteOne();
+};

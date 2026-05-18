@@ -1,6 +1,6 @@
 import { success } from "zod";
 import { catchAsync } from "../../shared/utils/catchAsync.js";
-import { changePasswordService, getAllUsersService, getCurrentUserService, updateUserService } from "./user.service.js";
+import { changePasswordService, deleteUserService, getAllUsersService, getCurrentUserService, updateUserService } from "./user.service.js";
 
 //get current user
 export const getCurrentUserController = catchAsync(async(req, res)=>{
@@ -32,5 +32,13 @@ export const changePasswordController = catchAsync(async(req, res)=>{
   res.status(200).json({
     success: true,
     message: "Your password changed successfully!",
+  });
+});
+//delete user
+export const deleteUserController = catchAsync(async(req, res)=>{
+  await deleteUserService(req.user._id);
+  res.status(200).json({
+    success: true,
+    message: "User deleted successfully!",
   });
 });
