@@ -17,3 +17,19 @@ export const getAllUsersService = async()=>{
   };
   return {users};
 };
+//update user
+export const updateUserService = async(id, updateData)=>{
+  const forbiddenFile = ["password", "refreshToken", "isVerified"];
+  forbiddenFile.forEach(file=>{
+    delete updateData[file];
+  });
+  const user = await userModel.findOneAndUpdate(
+    {_id:id},
+    updateData,
+    {returnDocument: "after"},
+  );
+  if(!user){
+    throw new ApiError("user not found", 404);
+  };
+  return {user};
+};
